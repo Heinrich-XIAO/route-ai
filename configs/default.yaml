@@ -1,0 +1,22 @@
+dataset:
+  name: "tscircuit/zero-obstacle-high-density-z01"
+  split: "train"
+  image_size: 256
+  max_samples: 1000
+
+model:
+  input_channels: 3
+  latent_dim: 256
+  base_channels: 64
+
+training:
+  batch_size: 16
+  epochs: 10
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  grad_clip: 1.0
+
+output:
+  checkpoint_dir: "checkpoints"
+  log_interval: 100
+  save_interval: 1000
