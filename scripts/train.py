@@ -72,14 +72,19 @@ def main():
         "--config", type=str, default="configs/default.yaml", help="Config file path"
     )
     parser.add_argument(
-        "--device", type=str, default="auto", help="Device (cuda/cpu/auto)"
+        "--device", type=str, default="auto", help="Device (cuda/mps/cpu/auto)"
     )
     args = parser.parse_args()
 
     config = Config.from_yaml(args.config)
 
     if args.device == "auto":
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        if torch.cuda.is_available():
+            device = torch.device("cuda")
+        elif torch.backends.mps.is_available():
+            device = torch.device("mps")
+        else:
+            device = torch.device("cpu")
     else:
         device = torch.device(args.device)
 
@@ -98,8 +103,8 @@ def main():
         dataset, [train_size, val_size]
     )
 
-    use_pin_memory = device.type == "cuda"
-    num_workers = 4 if device.type == "cuda" else 0
+    use_pin_memory = device.type in ("cuda", "mps")
+    num_workers = 0 if device.type in ("cpu", "mps") else 4
 
     train_loader = DataLoader(
         train_dataset,
