@@ -3,6 +3,20 @@ import torch.nn as nn
 from .encoder import InputEncoder
 
 
+class SeparableConvTranspose2d(nn.Module):
+    def __init__(self, in_channels, out_channels, kernel_size=4, stride=2, padding=1):
+        super().__init__()
+        self.depthwise = nn.ConvTranspose2d(
+            in_channels, in_channels, kernel_size, stride, padding, groups=in_channels
+        )
+        self.pointwise = nn.ConvTranspose2d(in_channels, out_channels, 1)
+
+    def forward(self, x):
+        x = self.depthwise(x)
+        x = self.pointwise(x)
+        return x
+
+
 class Decoder(nn.Module):
     def __init__(
         self,
@@ -15,27 +29,35 @@ class Decoder(nn.Module):
         self.fc = nn.Linear(latent_dim, base_channels * 32 * 4 * 4)
 
         self.decoder = nn.Sequential(
-            nn.ConvTranspose2d(
-                base_channels * 32, base_channels * 16, kernel_size=4, stride=2, padding=1
+            SeparableConvTranspose2d(
+                base_channels * 32,
+                base_channels * 16,
+                kernel_size=4,
+                stride=2,
+                padding=1,
             ),
             nn.BatchNorm2d(base_channels * 16),
             nn.ReLU(inplace=True),
-            nn.ConvTranspose2d(
-                base_channels * 16, base_channels * 8, kernel_size=4, stride=2, padding=1
+            SeparableConvTranspose2d(
+                base_channels * 16,
+                base_channels * 8,
+                kernel_size=4,
+                stride=2,
+                padding=1,
             ),
             nn.BatchNorm2d(base_channels * 8),
             nn.ReLU(inplace=True),
-            nn.ConvTranspose2d(
+            SeparableConvTranspose2d(
                 base_channels * 8, base_channels * 4, kernel_size=4, stride=2, padding=1
             ),
             nn.BatchNorm2d(base_channels * 4),
             nn.ReLU(inplace=True),
-            nn.ConvTranspose2d(
+            SeparableConvTranspose2d(
                 base_channels * 4, base_channels * 2, kernel_size=4, stride=2, padding=1
             ),
             nn.BatchNorm2d(base_channels * 2),
             nn.ReLU(inplace=True),
-            nn.ConvTranspose2d(
+            SeparableConvTranspose2d(
                 base_channels * 2, base_channels, kernel_size=4, stride=2, padding=1
             ),
             nn.BatchNorm2d(base_channels),
