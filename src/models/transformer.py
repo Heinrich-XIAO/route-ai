@@ -49,7 +49,7 @@ class MultiHeadAttention(nn.Module):
         attn = attn.softmax(dim=-1)
         attn = self.attn_drop(attn)
 
-        x = (attn @ v).transpose(1, 2).reshape(B, N, C)
+        x = (attn @ v).transpose(1, 2).reshape(B, N, C).contiguous()
         x = self.proj(x)
         x = self.proj_drop(x)
 
@@ -225,7 +225,7 @@ class TransformerDecoder(nn.Module):
         # Reshape to image patches
         B = x.shape[0]
         H = W = int(self.n_patches**0.5)
-        x = x.transpose(1, 2).reshape(B, self.embed_dim, H, W)
+        x = x.transpose(1, 2).reshape(B, self.embed_dim, H, W).contiguous()
 
         # Upsample through decoder blocks
         for block in self.decoder_blocks:
