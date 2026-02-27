@@ -57,7 +57,7 @@ def test_model(checkpoint_path: str | None = None, sample_idx: int = 0):
     # Run inference
     print(f"Running inference on sample {sample_idx}...")
     with torch.no_grad():
-        reconstructed = model(input_image, output_image)
+        reconstructed = model(input_image)
     
     # Calculate loss
     criterion = torch.nn.MSELoss()

@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 from .encoder import InputEncoder
-from .output_encoder import OutputEncoder
 
 
 class Decoder(nn.Module):
@@ -13,7 +12,7 @@ class Decoder(nn.Module):
     ):
         super().__init__()
 
-        self.fc = nn.Linear(latent_dim * 2, base_channels * 32 * 4 * 4)
+        self.fc = nn.Linear(latent_dim, base_channels * 32 * 4 * 4)
 
         self.decoder = nn.Sequential(
             nn.ConvTranspose2d(
@@ -63,12 +62,7 @@ class PCBAutoencoder(nn.Module):
     ):
         super().__init__()
 
-        self.input_encoder = InputEncoder(
-            input_channels=input_channels,
-            latent_dim=latent_dim,
-            base_channels=base_channels,
-        )
-        self.output_encoder = OutputEncoder(
+        self.encoder = InputEncoder(
             input_channels=input_channels,
             latent_dim=latent_dim,
             base_channels=base_channels,
@@ -79,20 +73,13 @@ class PCBAutoencoder(nn.Module):
             base_channels=base_channels,
         )
 
-    def encode_input(self, x: torch.Tensor) -> torch.Tensor:
-        return self.input_encoder(x)
-
-    def encode_output(self, x: torch.Tensor) -> torch.Tensor:
-        return self.output_encoder(x)
+    def encode(self, x: torch.Tensor) -> torch.Tensor:
+        return self.encoder(x)
 
     def decode(self, z: torch.Tensor) -> torch.Tensor:
         return self.decoder(z)
 
-    def forward(
-        self, input_image: torch.Tensor, output_image: torch.Tensor
-    ) -> torch.Tensor:
-        z_input = self.encode_input(input_image)
-        z_output = self.encode_output(output_image)
-        z_concat = torch.cat([z_input, z_output], dim=1)
-        reconstructed = self.decode(z_concat)
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        z = self.encode(x)
+        reconstructed = self.decode(z)
         return reconstructed

@@ -2,5 +2,6 @@
 *.pyc
 __pycache__/
 checkpoints/
+test_outputs/
 *.pt
 .DS_Store

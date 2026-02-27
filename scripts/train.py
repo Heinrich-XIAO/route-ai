@@ -27,12 +27,12 @@ def train_epoch(
     model.train()
     total_loss = 0.0
 
-    for batch_idx, (input_image, output_image) in enumerate(dataloader):
+    for input_image, output_image in dataloader:
         input_image = input_image.to(device)
         output_image = output_image.to(device)
 
         optimizer.zero_grad()
-        reconstructed = model(input_image, output_image)
+        reconstructed = model(input_image)
         loss = criterion(reconstructed, output_image)
         loss.backward()
 
@@ -58,6 +58,10 @@ def validate(
         for input_image, output_image in dataloader:
             input_image = input_image.to(device)
             output_image = output_image.to(device)
+
+            reconstructed = model(input_image)
+            loss = criterion(reconstructed, output_image)
+            total_loss += loss.item()
 
             reconstructed = model(input_image, output_image)
             loss = criterion(reconstructed, output_image)
