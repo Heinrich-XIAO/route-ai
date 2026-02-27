@@ -122,7 +122,10 @@ def test_model(
 def main():
     parser = argparse.ArgumentParser(description="Test PCB Autoencoder")
     parser.add_argument(
-        "--checkpoint", type=str, default=None, help="Path to model checkpoint"
+        "--checkpoint",
+        type=str,
+        default="checkpoints/best_model.pt",
+        help="Path to model checkpoint",
     )
     parser.add_argument("--sample", type=int, default=0, help="Sample index to test")
     parser.add_argument(
