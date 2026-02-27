@@ -14,8 +14,8 @@ class DatasetConfig:
 @dataclass
 class ModelConfig:
     input_channels: int = 3
-    latent_dim: int = 64
-    base_channels: int = 32
+    latent_dim: int = 128
+    base_channels: int = 48
 
 
 @dataclass
