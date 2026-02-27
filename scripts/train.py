@@ -127,9 +127,6 @@ def main():
         base_channels=config.model.base_channels,
     ).to(device)
 
-    if device.type in ("mps", "cuda"):
-        model = model.to(memory_format=torch.channels_last)
-
     print(f"Model parameters: {sum(p.numel() for p in model.parameters()):,}")
 
     optimizer = optim.Adam(
