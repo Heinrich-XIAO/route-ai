@@ -127,12 +127,8 @@ def main():
         base_channels=config.model.base_channels,
     ).to(device)
 
-    if device.type == "mps":
+    if device.type in ("mps", "cuda"):
         model = model.to(memory_format=torch.channels_last)
-        model = torch.compile(model)
-    elif device.type == "cuda":
-        model = model.to(memory_format=torch.channels_last)
-        model = torch.compile(model)
 
     print(f"Model parameters: {sum(p.numel() for p in model.parameters()):,}")
 
