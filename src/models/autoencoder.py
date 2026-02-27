@@ -70,7 +70,7 @@ class Decoder(nn.Module):
 
     def forward(self, z: torch.Tensor) -> torch.Tensor:
         x = self.fc(z)
-        x = x.view(x.size(0), -1, 4, 4)
+        x = x.reshape(x.size(0), -1, 4, 4)
         x = self.decoder(x)
         return x
 
