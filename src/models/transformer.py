@@ -175,7 +175,7 @@ class TransformerDecoder(nn.Module):
         self.n_patches = (img_size // patch_size) ** 2
         self.embed_dim = embed_dim
 
-        # Decoder upsampling layers
+        # Decoder upsampling layers: 16->32->64->128->256 (4 upsamples)
         self.decoder_blocks = nn.ModuleList(
             [
                 nn.Sequential(
@@ -207,27 +207,14 @@ class TransformerDecoder(nn.Module):
                     nn.BatchNorm2d(base_channels * 2),
                     nn.ReLU(inplace=True),
                 ),
-                nn.Sequential(
-                    nn.ConvTranspose2d(
-                        base_channels * 2,
-                        base_channels,
-                        kernel_size=4,
-                        stride=2,
-                        padding=1,
-                    ),
-                    nn.BatchNorm2d(base_channels),
-                    nn.ReLU(inplace=True),
+                nn.ConvTranspose2d(
+                    base_channels * 2,
+                    output_channels,
+                    kernel_size=4,
+                    stride=2,
+                    padding=1,
                 ),
-                nn.Sequential(
-                    nn.ConvTranspose2d(
-                        base_channels,
-                        output_channels,
-                        kernel_size=4,
-                        stride=2,
-                        padding=1,
-                    ),
-                    nn.Sigmoid(),
-                ),
+                nn.Sigmoid(),
             ]
         )
 
