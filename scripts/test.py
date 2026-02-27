@@ -13,6 +13,7 @@ from PIL import Image
 import numpy as np
 
 from src.models.autoencoder import PCBAutoencoder
+from src.models.transformer import PCBTransformer
 from src.data.dataset import PCBAutoroutingDataset
 from src.utils.config import (
     Config,
@@ -27,6 +28,7 @@ def test_model(
     checkpoint_path: str | None = None,
     sample_idx: int = 0,
     config: Config | None = None,
+    model_type: str = "transformer",
 ):
     """Test the model on a sample from the dataset."""
 
@@ -49,11 +51,21 @@ def test_model(
     print(f"Using device: {device}")
 
     # Load model
-    model = PCBAutoencoder(
-        input_channels=config.model.input_channels,
-        latent_dim=config.model.latent_dim,
-        base_channels=config.model.base_channels,
-    ).to(device)
+    if model_type == "transformer":
+        model = PCBTransformer(
+            img_size=config.dataset.image_size,
+            patch_size=16,
+            in_chans=config.model.input_channels,
+            embed_dim=768,
+            depth=12,
+            n_heads=12,
+        ).to(device)
+    else:
+        model = PCBAutoencoder(
+            input_channels=config.model.input_channels,
+            latent_dim=config.model.latent_dim,
+            base_channels=config.model.base_channels,
+        ).to(device)
 
     if checkpoint_path and Path(checkpoint_path).exists():
         print(f"Loading checkpoint from {checkpoint_path}")
@@ -131,10 +143,17 @@ def main():
     parser.add_argument(
         "--config", type=str, default="configs/default.yaml", help="Config file path"
     )
+    parser.add_argument(
+        "--model",
+        type=str,
+        default="transformer",
+        choices=["autoencoder", "transformer"],
+        help="Model architecture",
+    )
     args = parser.parse_args()
 
     config = Config.from_yaml(args.config)
-    test_model(args.checkpoint, args.sample, config)
+    test_model(args.checkpoint, args.sample, config, args.model)
 
 
 if __name__ == "__main__":

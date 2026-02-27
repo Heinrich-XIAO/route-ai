@@ -13,6 +13,7 @@ import argparse
 
 from src.data.dataset import PCBAutoroutingDataset
 from src.models.autoencoder import PCBAutoencoder
+from src.models.transformer import PCBTransformer
 from src.utils.config import Config
 
 
@@ -74,6 +75,13 @@ def main():
     parser.add_argument(
         "--device", type=str, default="auto", help="Device (cuda/mps/cpu/auto)"
     )
+    parser.add_argument(
+        "--model",
+        type=str,
+        default="transformer",
+        choices=["autoencoder", "transformer"],
+        help="Model architecture",
+    )
     args = parser.parse_args()
 
     config = Config.from_yaml(args.config)
@@ -121,11 +129,21 @@ def main():
         pin_memory=use_pin_memory,
     )
 
-    model = PCBAutoencoder(
-        input_channels=config.model.input_channels,
-        latent_dim=config.model.latent_dim,
-        base_channels=config.model.base_channels,
-    ).to(device)
+    if args.model == "transformer":
+        model = PCBTransformer(
+            img_size=config.dataset.image_size,
+            patch_size=16,
+            in_chans=config.model.input_channels,
+            embed_dim=768,
+            depth=12,
+            n_heads=12,
+        ).to(device)
+    else:
+        model = PCBAutoencoder(
+            input_channels=config.model.input_channels,
+            latent_dim=config.model.latent_dim,
+            base_channels=config.model.base_channels,
+        ).to(device)
 
     print(f"Model parameters: {sum(p.numel() for p in model.parameters()):,}")
 
