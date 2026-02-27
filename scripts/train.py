@@ -63,10 +63,6 @@ def validate(
             loss = criterion(reconstructed, output_image)
             total_loss += loss.item()
 
-            reconstructed = model(input_image, output_image)
-            loss = criterion(reconstructed, output_image)
-            total_loss += loss.item()
-
     return total_loss / len(dataloader)
 
 
